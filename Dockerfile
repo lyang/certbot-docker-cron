@@ -14,4 +14,4 @@ VOLUME ["/opt/cloudflare"]
 
 ENTRYPOINT ["entrypoint.sh"]
 
-CMD ["crond", "-f", "-l", "0"]
+CMD ["crond", "-f", "-d", "6"]
