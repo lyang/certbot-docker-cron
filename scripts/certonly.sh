@@ -4,19 +4,19 @@ set -o nounset
 set -o pipefail
 
 parse-config() {
-  jq --raw-output '.[] | [.domains, .email, .credentials, (.deployhook // "/etc/certbot/deploy-hooks/00-default.sh")] | join(" ")' $CERTBOT_CONFIG
+  jq --raw-output '.[] | [.domains, .email, .plugin, .credentials, (.deployhook // "/etc/certbot/deploy-hooks/00-default.sh")] | join(" ")' $CERTBOT_CONFIG
 }
 
 certonly() {
-  while read domains email credentials deployhook; do
+  while read domains email plugin credentials deployhook; do
     echo "Creating for $domains ..."
     certbot \
       certonly \
       --agree-tos \
       --non-interactive \
-      --dns-cloudflare \
-      --dns-cloudflare-credentials $credentials \
-      --dns-cloudflare-propagation-seconds 60 \
+      --$plugin \
+      --$plugin-credentials $credentials \
+      --$plugin-propagation-seconds 60 \
       --email $email \
       --deploy-hook $deployhook \
       --domains $domains

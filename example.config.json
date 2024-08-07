@@ -2,11 +2,13 @@
   {
     "domains": "foo.example.com,bar.example.com",
     "email": "admin@example.com",
+    "plugin": "dns-cloudflare",
     "credentials": "/etc/certbot/cloudflare.ini"
   },
   {
     "domains": "baz.example.com",
     "email": "admin@example.com",
+    "plugin": "dns-cloudflare",
     "credentials": "/etc/certbot/cloudflare.ini"
   }
 ]
