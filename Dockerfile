@@ -1,17 +1,14 @@
 FROM docker.io/certbot/dns-cloudflare:latest
 
 RUN apk upgrade --no-cache && \
-    apk add --no-cache bash && \
+    apk add --no-cache bash jq && \
     rm -rf /tmp/* /var/cache/apk/* /var/tmp/*
 
-COPY certbot.sh /etc/periodic/daily
+COPY . /etc/certbot
 
-COPY deploy-hook.sh /usr/local/bin
 
-COPY entrypoint.sh /usr/local/bin
+ENV CERTBOT_CONFIG="/etc/certbot/config.json"
 
-VOLUME ["/opt/cloudflare"]
-
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["/etc/certbot/entrypoint.sh"]
 
 CMD ["crond", "-f", "-d", "6"]
