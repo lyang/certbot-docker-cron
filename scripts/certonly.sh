@@ -4,7 +4,7 @@ set -o nounset
 set -o pipefail
 
 parse-config() {
-  jq --raw-output '.[] | [.domains, .email, .plugin, .credentials, (.deployhook // "/etc/certbot/deploy-hooks/00-default.sh")] | join(" ")' $CERTBOT_CONFIG
+  jq --raw-output '.[] | [.domains, .email, .plugin, .credentials, (.deployhook // "/etc/certbot/deploy-hooks/default.sh")] | join(" ")' $CERTBOT_CONFIG
 }
 
 certonly() {
