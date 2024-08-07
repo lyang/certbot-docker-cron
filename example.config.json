@@ -9,7 +9,8 @@
     "domains": "baz.example.com",
     "email": "admin@example.com",
     "plugin": "dns-cloudflare",
-    "credentials": "/etc/certbot/cloudflare.ini"
+    "credentials": "/etc/certbot/cloudflare.ini",
+    "deployhook": "/etc/certbot/deploy-hooks/convert-to-pkcs12.sh"
   }
 ]
 
