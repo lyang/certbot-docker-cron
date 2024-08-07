@@ -6,7 +6,6 @@ RUN apk upgrade --no-cache && \
 
 COPY . /etc/certbot
 
-
 ENV CERTBOT_CONFIG="/etc/certbot/config.json"
 
 ENTRYPOINT ["/etc/certbot/entrypoint.sh"]
