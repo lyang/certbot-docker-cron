@@ -1,0 +1,7 @@
+{
+  "scheme": "https",
+  "host": "example.com",
+  "port": 5001,
+  "account": "certbot",
+  "passwd": "k33p1ts3cr3t"
+}
