@@ -63,6 +63,7 @@ replace-default-cert() {
     --form "cert=@$RENEWED_LINEAGE/$DOMAIN.cert.pem" \
     --form "inter_cert=@$RENEWED_LINEAGE/$DOMAIN.chain.pem" \
     --form "id=$DEFAULT_CERT" \
+    --form "desc=$DOMAIN" \
     --form "as_default=true" \
     "$API_URL?api=SYNO.Core.Certificate&method=import&version=1&SynoToken=$SYNO_TOKEN&_sid=$SID&" | \
     jq "."
