@@ -34,12 +34,12 @@ get-api-info() {
 get-auth-token() {
   curl --silent --insecure \
     --data "api=SYNO.API.Auth" \
-    --DATA "VERSION=$API_VERSION" \
+    --data "version=$API_VERSION" \
     --data "method=login" \
     --data "format=sid" \
     --data "enable_syno_token=yes" \
     --data "account=$ACCOUNT" \
-    --data "passwd=$PASSWD" \
+    --data-urlencode "passwd=$PASSWD" \
     $API_URL | \
     jq --raw-output '.data | [.sid, .synotoken] | join(" ")'
 }
