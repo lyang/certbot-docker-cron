@@ -1,0 +1,25 @@
+[
+  {
+    "domains": "foo.example.com,bar.example.com",
+    "email": "admin@example.com",
+    "plugin": "dns-cloudflare",
+    "credentials": "/etc/certbot/cloudflare.ini"
+  },
+  {
+    "domains": "baz.example.com",
+    "email": "admin@example.com",
+    "plugin": "dns-cloudflare",
+    "credentials": "/etc/certbot/cloudflare.ini",
+    "hook-script": "/etc/certbot/deploy-hooks/convert-to-pkcs12.sh"
+  },
+  {
+    "domains": "dsm.example.com",
+    "email": "admin@example.com",
+    "plugin": "dns-cloudflare",
+    "credentials": "/etc/certbot/cloudflare.ini",
+    "hook-type": "deploy",
+    "hook-script": "/etc/certbot/deploy-hooks/update-dsm.sh",
+    "hook-config": "/etc/certbot/dsm.config.json"
+  }
+]
+

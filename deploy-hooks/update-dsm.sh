@@ -3,48 +3,45 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-update-dsm() {
-  CURRENT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-  $CURRENT_DIR/default.sh
-  DSM_CONFIG=$1
-  IFS=' ' read -a DOMAIN <<< "$RENEWED_DOMAINS"
-  IFS=' ' read SCHEME HOST PORT ACCOUNT PASSWD <<< $(parse-config)
-  QUERY_URL="$SCHEME://$HOST:$PORT/webapi/query.cgi"
-  IFS=' ' read API_PATH API_VERSION <<< $(get-api-info)
-  API_URL="$SCHEME://$HOST:$PORT/webapi/$API_PATH"
-  IFS=' ' read SID DEVICE_ID SYNO_TOKEN <<< $(get-auth-token)
-  DEFAULT_CERT=$(get-default-cert)
-  replace-default-cert
-}
+CURRENT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source $CURRENT_DIR/default.sh
 
 parse-config() {
-  jq --raw-output '[.scheme, .host, .port, .account, .passwd] | join(" ")' $DSM_CONFIG
+  jq --raw-output '[.scheme, .host, .port, .account, .passwd] | join(" ")' $HOOK_CONFIG
 }
 
 get-api-info() {
+  local scheme host port
+  IFS=' ' read scheme host port ACCOUNT PASSWD <<< $(parse-config)
+  BASE_URL="$scheme://$host:$port/webapi"
+  local query_url="$BASE_URL/query.cgi"
   curl --silent \
     --data "api=SYNO.API.Info" \
     --data "version=1" \
     --data "method=query" \
     --data "query=SYNO.API.Auth" \
-    $QUERY_URL | \
+    $query_url | \
     jq --raw-output '.data["SYNO.API.Auth"] | [.path, (.maxVersion | tostring)] | join(" ")' 
 }
 
 get-auth-token() {
+  local api_path api_version
+  IFS=' ' read api_path api_version <<< $(get-api-info)
+  API_URL="$BASE_URL/$api_path"
   curl --silent \
     --data "api=SYNO.API.Auth" \
-    --data "version=7" \
+    --data "version=$api_version" \
     --data "method=login" \
     --data "format=sid" \
     --data "enable_syno_token=yes" \
     --data "account=$ACCOUNT" \
     --data "passwd=$PASSWD" \
     $API_URL | \
-    jq --raw-output '.data | [.sid, .device_id, .synotoken] | join(" ")'
+    jq --raw-output '.data | [.sid, .synotoken] | join(" ")'
 }
 
 get-default-cert() {
+  IFS=' ' read SID SYNO_TOKEN <<< $(get-auth-token)
   curl --silent \
     --header "X-SYNO-TOKEN: $SYNO_TOKEN" \
     --request POST \
@@ -57,6 +54,7 @@ get-default-cert() {
 }
 
 replace-default-cert() {
+  DEFAULT_CERT=$(get-default-cert)
   curl --silent \
     --request POST \
     --data "api=SYNO.Core.Certificate" \
@@ -73,4 +71,4 @@ replace-default-cert() {
     jq "."
 }
 
-update-dsm $1
+replace-default-cert

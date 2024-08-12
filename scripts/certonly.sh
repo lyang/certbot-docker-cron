@@ -4,13 +4,30 @@ set -o nounset
 set -o pipefail
 
 parse-config() {
-  jq --raw-output '.[] | [.domains, .email, .plugin, .credentials, (.deployhook // "/etc/certbot/deploy-hooks/default.sh")] | join(" ")' $CERTBOT_CONFIG
+  local fields=(
+    '.domains'
+    '.email'
+    '.plugin'
+    '.credentials'
+    '(."hook-type" // "deploy")'
+    '(."hook-script" // "/etc/certbot/deploy-hooks/default.sh")'
+    '(."hook-config" // "")'
+  )
+  local filter=$(join-array , "${fields[@]}")
+  jq --raw-output ".[] | [$filter] | join(\" \")" $CERTBOT_CONFIG
+}
+
+join-array() {
+  local IFS="$1"
+  shift
+  echo "$*"
 }
 
 certonly() {
-  while read domains email plugin credentials deployhook; do
+  local domains email plugin credentials hook_type hook_script hook_config
+  while read domains email plugin credentials hook_type hook_script hook_config; do
     echo "Creating for $domains ..."
-    certbot \
+    HOOK_CONFIG="$hook_config" certbot \
       certonly \
       --agree-tos \
       --non-interactive \
@@ -18,7 +35,7 @@ certonly() {
       --$plugin-credentials $credentials \
       --$plugin-propagation-seconds 60 \
       --email $email \
-      --deploy-hook $deployhook \
+      --$hook_type-hook $hook_script \
       --domains $domains
   done
 }
