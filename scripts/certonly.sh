@@ -27,7 +27,7 @@ certonly() {
   local domains email plugin credentials hook_type hook_script hook_config
   while read domains email plugin credentials hook_type hook_script hook_config; do
     echo "Creating for $domains ..."
-    HOOK_CONFIG="$hook_config" certbot \
+    certbot \
       certonly \
       --agree-tos \
       --non-interactive \
@@ -35,7 +35,7 @@ certonly() {
       --$plugin-credentials $credentials \
       --$plugin-propagation-seconds 60 \
       --email $email \
-      --$hook_type-hook $hook_script \
+      --$hook_type-hook HOOK_CONFIG="$hook_config" $hook_script \
       --domains $domains
   done
 }
