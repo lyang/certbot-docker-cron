@@ -6,14 +6,21 @@ set -o pipefail
 CURRENT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 source $CURRENT_DIR/default.sh
 
+update-dsm() {
+  IFS=' ' read SCHEME HOST PORT ACCOUNT PASSWD <<< $(parse-config)
+  BASE_URL="$SCHEME://$HOST:$PORT/webapi"
+  IFS=' ' read API_PATH API_VERSION <<< $(get-api-info)
+  API_URL="$BASE_URL/$API_PATH"
+  IFS=' ' read SID SYNO_TOKEN <<< $(get-auth-token)
+  DEFAULT_CERT=$(get-default-cert)
+  replace-default-cert
+}
+
 parse-config() {
   jq --raw-output '[.scheme, .host, .port, .account, .passwd] | join(" ")' $HOOK_CONFIG
 }
 
 get-api-info() {
-  local scheme host port
-  IFS=' ' read scheme host port ACCOUNT PASSWD <<< $(parse-config)
-  BASE_URL="$scheme://$host:$port/webapi"
   local query_url="$BASE_URL/query.cgi"
   curl --silent --insecure \
     --data "api=SYNO.API.Info" \
@@ -25,12 +32,9 @@ get-api-info() {
 }
 
 get-auth-token() {
-  local api_path api_version
-  IFS=' ' read api_path api_version <<< $(get-api-info)
-  API_URL="$BASE_URL/$api_path"
   curl --silent --insecure \
     --data "api=SYNO.API.Auth" \
-    --data "version=$api_version" \
+    --DATA "VERSION=$API_VERSION" \
     --data "method=login" \
     --data "format=sid" \
     --data "enable_syno_token=yes" \
@@ -41,7 +45,6 @@ get-auth-token() {
 }
 
 get-default-cert() {
-  IFS=' ' read SID SYNO_TOKEN <<< $(get-auth-token)
   curl --silent --insecure \
     --header "X-SYNO-TOKEN: $SYNO_TOKEN" \
     --request POST \
@@ -54,7 +57,6 @@ get-default-cert() {
 }
 
 replace-default-cert() {
-  DEFAULT_CERT=$(get-default-cert)
   curl --silent --insecure \
     --request POST \
     --data "api=SYNO.Core.Certificate" \
@@ -71,4 +73,4 @@ replace-default-cert() {
     jq "."
 }
 
-replace-default-cert
+update-dsm
