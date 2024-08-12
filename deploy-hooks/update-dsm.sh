@@ -17,7 +17,7 @@ update-dsm() {
 }
 
 parse-config() {
-  jq --raw-output '[.scheme, .host, .port, .account, .passwd] | join(" ")' $HOOK_CONFIG
+  jq --raw-output '[.scheme, .host, .port, .account, .passwd] | join(" ")' $DSM_CONFIG
 }
 
 get-api-info() {

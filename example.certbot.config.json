@@ -18,8 +18,7 @@
     "plugin": "dns-cloudflare",
     "credentials": "/etc/certbot/cloudflare.ini",
     "hook-type": "deploy",
-    "hook-script": "/etc/certbot/deploy-hooks/update-dsm.sh",
-    "hook-config": "/etc/certbot/dsm.config.json"
+    "hook-script": "/etc/certbot/deploy-hooks/update-dsm.sh"
   }
 ]
 
