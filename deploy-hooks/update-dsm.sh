@@ -15,7 +15,7 @@ get-api-info() {
   IFS=' ' read scheme host port ACCOUNT PASSWD <<< $(parse-config)
   BASE_URL="$scheme://$host:$port/webapi"
   local query_url="$BASE_URL/query.cgi"
-  curl --silent \
+  curl --silent --insecure \
     --data "api=SYNO.API.Info" \
     --data "version=1" \
     --data "method=query" \
@@ -28,7 +28,7 @@ get-auth-token() {
   local api_path api_version
   IFS=' ' read api_path api_version <<< $(get-api-info)
   API_URL="$BASE_URL/$api_path"
-  curl --silent \
+  curl --silent --insecure \
     --data "api=SYNO.API.Auth" \
     --data "version=$api_version" \
     --data "method=login" \
@@ -42,7 +42,7 @@ get-auth-token() {
 
 get-default-cert() {
   IFS=' ' read SID SYNO_TOKEN <<< $(get-auth-token)
-  curl --silent \
+  curl --silent --insecure \
     --header "X-SYNO-TOKEN: $SYNO_TOKEN" \
     --request POST \
     --data "api=SYNO.Core.Certificate.CRT" \
@@ -50,12 +50,12 @@ get-default-cert() {
     --data "version=1" \
     --data "_sid=$SID" \
     $API_URL | \
-    jq --raw-output '.data.certificates.[] | select(.is_default) | .id'
+    jq --raw-output '.data.certificates[] | select(.is_default) | .id'
 }
 
 replace-default-cert() {
   DEFAULT_CERT=$(get-default-cert)
-  curl --silent \
+  curl --silent --insecure \
     --request POST \
     --data "api=SYNO.Core.Certificate" \
     --data "method=import" \
