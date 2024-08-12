@@ -59,17 +59,12 @@ get-default-cert() {
 replace-default-cert() {
   curl --silent --insecure \
     --request POST \
-    --data "api=SYNO.Core.Certificate" \
-    --data "method=import" \
-    --data "version=1" \
-    --data "SynoToken=$SYNO_TOKEN" \
-    --data "_sid=$SID" \
-    --form "key=@$DOMAIN.privkey.pem" \
-    --form "cert=@$DOMAIN.cert.pem" \
-    --form "inter_cert=@$DOMAIN.chain.pem" \
+    --form "key=@$RENEWED_LINEAGE/$DOMAIN.privkey.pem" \
+    --form "cert=@$RENEWED_LINEAGE/$DOMAIN.cert.pem" \
+    --form "inter_cert=@$RENEWED_LINEAGE/$DOMAIN.chain.pem" \
     --form "id=$DEFAULT_CERT" \
     --form "as_default=true" \
-    $API_URL | \
+    "$API_URL?api=SYNO.Core.Certificate&method=import&version=1&SynoToken=$SYNO_TOKEN&_sid=$SID&" | \
     jq "."
 }
 
